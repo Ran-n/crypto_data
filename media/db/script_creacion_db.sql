@@ -1,25 +1,51 @@
+CREATE TABLE IF NOT EXISTS "divisa_tipo"(
+    "id"        TEXT UNIQUE NOT NULL,
+    "nome"      TEXT UNIQUE NOT NULL,
+    CONSTRAINT tipo_divisaPK PRIMARY KEY ("id")
+);
+
 CREATE TABLE IF NOT EXISTS "divisa"(
     "id"        TEXT UNIQUE NOT NULL,
     "simbolo"   TEXT UNIQUE NOT NULL,
     "nome"      TEXT UNIQUE NOT NULL,
-    "id_tipo"   TEXT,
+    "siglas"    TEXT UNIQUE,
+    "data"      TEXT NOT NULL,
+    "id_tipo"   TEXT NOT NULL,
     CONSTRAINT divisaPK PRIMARY KEY ("id"),
-    CONSTRAINT divisaFK1 FOREIGN KEY ("id_tipo") REFERENCES "tipo"("id") ON UPDATE CASCADE MATCH [FULL]
+    CONSTRAINT divisaFK1 FOREIGN KEY ("id_tipo") REFERENCES "tipo_divisa"("id") ON DELETE CASCADE ON UPDATE CASCADE MATCH [FULL]
 );
 
-CREATE TABLE IF NOT EXISTS "tipo"(
-    "id"        TEXT UNIQUE NOT NULL,
+CREATE TABLE IF NOT EXISTS "paxina"(
+    "id"        INTEGER UNIQUE NOT NULL,
     "nome"      TEXT UNIQUE NOT NULL,
-    CONSTRAINT tipoPK PRIMARY KEY ("id")
+    "ligazon"   TEXT UNIQUE NOT NULL,
+    CONSTRAINT paxinaPK PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "top"(
+    "id"        INTEGER UNIQUE NOT NULL,
+    "data"      DATE UNIQUE NOT NULL,
+    "id_paxina" INTEGER NOT NULL,
+    CONSTRAINT topPK PRIMARY KEY ("id"),
+    CONSTRAINT divisaFK1 FOREIGN KEY ("id_paxina") REFERENCES "paxina"("id") ON UPDATE CASCADE MATCH [FULL]
 );
 
 CREATE TABLE IF NOT EXISTS "prezo"(
-    "id"                    TEXT UNIQUE NOT NULL,
-    "valor"                 INTEGER UNIQUE NOT NULL,
-    "data"                  INTEGET NOT NULL,
-    "id_divisa"             TEXT NOT NULL,
-    "id_divisa_referencia"  TEXT NOT NULL,
-    CONSTRAINT prezoPK PRIMARY KEY ("id"),
+    "id_divisa"     TEXT NOT NULL,
+    "id_divisa_ref" TEXT NOT NULL,
+    "data"          DATE UNIQUE NOT NULL,
+    "valor"         FLOAT NOT NULL,
+    CONSTRAINT prezoPK PRIMARY KEY ("id_divisa", "id_divisa_ref", "data"),
     CONSTRAINT prezoFK1 FOREIGN KEY ("id_divisa") REFERENCES "divisa"("id") ON UPDATE CASCADE MATCH [FULL],
-    CONSTRAINT prezoFK2 FOREIGN KEY ("id_divisa_referencia") REFERENCES "divisa"("id") ON UPDATE CASCADE MATCH [FULL]
+    CONSTRAINT prezoFK1 FOREIGN KEY ("id_divisa_ref") REFERENCES "divisa"("id") ON UPDATE CASCADE MATCH [FULL]
+);
+
+CREATE TABLE IF NOT EXISTS "topx"(
+    "id_divisa" TEXT NOT NULL,
+    "id_top"    INTEGER NOT NULL,
+    "posicion"  INTEGER NOT NULL,
+    "data"      DATE UNIQUE NOT NULL,
+    CONSTRAINT prezoPK PRIMARY KEY ("id_divisa", "id_top"),
+    CONSTRAINT prezoFK1 FOREIGN KEY ("id_divisa") REFERENCES "divisa"("id") ON UPDATE CASCADE MATCH [FULL],
+    CONSTRAINT prezoFK1 FOREIGN KEY ("id_top") REFERENCES "top"("id") ON UPDATE CASCADE MATCH [FULL]
 );

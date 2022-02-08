@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:38:36.890366
-#+ Editado:	2022/02/08 18:58:48.769439
+#+ Editado:	2022/02/08 21:37:31.383052
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
 from datetime import datetime as dt
@@ -13,16 +13,16 @@ from .uteis_local import chave
 @dataclass
 class Divisa_Tipo:
     nome: str
-    id_: str = field(default=chave())
+    id_: str = field(default_factory=chave)
 
 @dataclass
 class Divisa:
     simbolo: str
     nome: str
     siglas: str
-    data: str = field(default=dt.now(), init = False)
     id_tipo: str
-    id_: str = field(default=chave())
+    data: str = field(default_factory=dt.now)
+    id_: str = field(default_factory=chave)
 
 @dataclass
 class Paxina:
@@ -32,21 +32,21 @@ class Paxina:
 
 @dataclass
 class Top:
-    id_: int = field(init = False)
-    data: str = field(default=dt.now(), init = False)
     id_paxina: int
+    id_: int = field(init = False)
+    data: str = field(default_factory=dt.now)
 
 @dataclass
 class Prezo:
     id_divisa: str
     id_divisa_ref: str
-    data: str = field(default=dt.now(), init = False)
     valor: float
+    data: str = field(default_factory=dt.now)
 
 @dataclass
 class Topx:
     id_divisa: str
     id_top: int
     posicion: int
-    data: str = field(default=dt.now(), init = False)
+    data: str = field(default_factory=dt.now)
 # ------------------------------------------------------------------------------

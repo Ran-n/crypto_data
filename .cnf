@@ -1,23 +1,56 @@
 {
 
-    "db": "media/db/crypto_datos_historicos.db",
-
     "script_creacion_db": "media/db/script_creacion_db.sql",
 
-    "moedas": [
-                "bitcoin",
-                "ethereum"
-                ],
+    "db": "media/db/crypto_datos_historicos.db",
+
+
+    "tipos de divisa": [
+                        "criptomoeda",
+                        "criptotoken",
+                        "fiat"
+                        ],
+
 
     "divisas": [
-                "euro",
-                "usd"
+                {
+                    "simbolo": "€",
+                    "nome": "Euro",
+                    "siglas": "eur",
+                    "tipo": "fiat"
+                },
+                {
+                    "simbolo": "$",
+                    "nome": "Dollar",
+                    "siglas": "usd",
+                    "tipo": "fiat"
+                },
+                {
+                    "simbolo": "₿",
+                    "nome": "Bitcoin",
+                    "siglas": "BTC",
+                    "tipo": "criptomoeda"
+                },
+                {
+                    "simbolo": "",
+                    "nome": "Ethereum",
+                    "siglas": "ETH",
+                    "tipo": "criptomoeda"
+                }
                 ],
 
+
     "paxinas": [
-                "CoinGecko",
-                "CoinMarketCap"
+                {
+                    "nome": "CoinGecko",
+                    "ligazon": "https://www.coingecko.com"
+                },
+                {
+                    "nome": "CoinMarketCap",
+                    "ligazon": "https://coinmarketcap.com"
+                }
                 ],
+
 
     "topx": 100
 

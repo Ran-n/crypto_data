@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS "divisa_tipo"(
 
 CREATE TABLE IF NOT EXISTS "divisa"(
     "id"        TEXT UNIQUE NOT NULL,
-    "simbolo"   TEXT UNIQUE NOT NULL,
+    "simbolo"   TEXT UNIQUE,
     "nome"      TEXT UNIQUE NOT NULL,
-    "siglas"    TEXT UNIQUE,
+    "siglas"    TEXT UNIQUE NOT NULL,
     "data"      TEXT NOT NULL,
     "id_tipo"   TEXT NOT NULL,
     CONSTRAINT divisaPK PRIMARY KEY ("id"),

@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS "paxina"(
     "nome"      TEXT UNIQUE NOT NULL,
     "ligazon"   TEXT UNIQUE NOT NULL,
     CONSTRAINT paxinaPK PRIMARY KEY ("id")
+
 );
 
 CREATE TABLE IF NOT EXISTS "top"(

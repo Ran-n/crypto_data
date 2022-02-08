@@ -1,0 +1,19 @@
+{
+
+    "db": "media/db/crypto_datos_historicos.db",
+
+    "script_creacion_db": "media/db/script_creacion_db.sql",
+
+    "moedas": [
+                "bitcoin",
+                "ethereum"
+                ],
+
+    "divisas": [
+                "euro",
+                "usd"
+                ],
+
+    "topx": 100
+
+}

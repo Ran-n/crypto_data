@@ -26,9 +26,9 @@ class Divisa:
 
 @dataclass
 class Paxina:
-    id_: int = field(init = False)
     nome: str
     ligazon: str
+    id_: int = -1
 
 @dataclass
 class Top:

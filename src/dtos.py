@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:38:36.890366
-#+ Editado:	2022/02/08 21:37:31.383052
+#+ Editado:	2022/02/08 23:38:07.089786
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
 from datetime import datetime as dt
@@ -28,12 +28,12 @@ class Divisa:
 class Paxina:
     nome: str
     ligazon: str
-    id_: int = -1
+    id_: int = field(default=-1)
 
 @dataclass
 class Top:
     id_paxina: int
-    id_: int = field(init = False)
+    id_: int = field(default=-1)
     data: str = field(default_factory=dt.now)
 
 @dataclass

@@ -3,11 +3,11 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/02/08 22:36:05.956569
+#+ Editado:	2022/02/08 23:54:53.874956
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
-from sqlite3 import Connection, Cursor
+from sqlite3 import Connection, Cursor, IntegrityError
 from typing import Dict, List, Union
 
 from uteis.ficheiro import cargarJson, cargarFich
@@ -42,18 +42,18 @@ def coller_todo_paxina(cur: Cursor) -> List[Paxina]:
             ligazon = linha[2]
             ))
     return paxinas
-
-def coller_ou_insertar_taboa(cur: Cursor, taboa: str, valores: Union[List[str], List[Dict[str, str]]]) -> List[Union[Divisa_Tipo, Divisa, Paxina, Top, Prezo, Topx]]:
+# ------------------------------------------------------------------------------
+def coller_ou_insertar_taboa(cur: Cursor, taboa: str, valores: Union[List[str], List[Dict[str, str]]]) -> Union[List[Union[Divisa_Tipo, Divisa, Paxina]], Top]:
     taboas = {
             'paxina': coller_ou_insertar_paxina,
             'divisa_tipo': coller_ou_insertar_divisa_tipo,
-            'divisa': coller_ou_insertar_divisa
+            'divisa': coller_ou_insertar_divisa,
             }
     try:
         return taboas[taboa](cur, valores)
     except KeyError:
         raise TaboaInexistenteErro
-    except Exception as e
+    except Exception as e:
         raise e
 
 def coller_ou_insertar_paxina(cur: Cursor, valores: List[Dict[str, str]]) -> List[Paxina]:
@@ -68,13 +68,21 @@ def coller_ou_insertar_paxina(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
                 ligazon= dato[2]
                 ))
         else:
-            nova_paxina = Paxina(
-                        nome= valor['nome'],
-                        ligazon= valor['ligazon']
-                    )
-            cur.execute('insert into paxina("nome", "ligazon")'\
-                    f' values("{nova_paxina.nome}", "{nova_paxina.ligazon}")')
-            paxinas.append(nova_paxina)
+            while True:
+                try:
+                    nova_paxina = Paxina(
+                                nome= valor['nome'],
+                                ligazon= valor['ligazon']
+                            )
+                    cur.execute('insert into paxina("nome", "ligazon")'\
+                            f' values("{nova_paxina.nome}", "{nova_paxina.ligazon}")')
+                except IntegrityError:
+                    pass
+                except Exception as e:
+                    raise e
+                else:
+                    paxinas.append(nova_paxina)
+                    break
 
     return paxinas
 
@@ -89,11 +97,19 @@ def coller_ou_insertar_divisa_tipo(cur: Cursor, nomes: List[str]) -> List[Divisa
                 nome= dato[1]
                 ))
         else:
-            nova_divisa_tipo = Divisa_Tipo(nome= nome)
+            while True:
+                try:
+                    nova_divisa_tipo = Divisa_Tipo(nome= nome)
 
-            cur.execute('insert into divisa_tipo("id", "nome")'\
-                    f' values("{nova_divisa_tipo.id_}", "{nova_divisa_tipo.nome}")')
-            divisa_tipos.append(nova_divisa_tipo)
+                    cur.execute('insert into divisa_tipo("id", "nome")'\
+                            f' values("{nova_divisa_tipo.id_}", "{nova_divisa_tipo.nome}")')
+                except IntegrityError:
+                    pass
+                except Exception as e:
+                    raise e
+                else:
+                    divisa_tipos.append(nova_divisa_tipo)
+                    break
 
     return divisa_tipos
 
@@ -112,20 +128,46 @@ def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
                 id_tipo= dato[5]
                 ))
         else:
-            nova_divisa = Divisa(
-                            simbolo= valor['simbolo'],
-                            nome= valor['nome'],
-                            siglas= valor['siglas'],
-                            id_tipo = coller_ou_insertar_divisa_tipo(cur, [valor['tipo']])[0].id_
-                            )
+            while True:
+                try:
+                    nova_divisa = Divisa(
+                                    simbolo= valor['simbolo'],
+                                    nome= valor['nome'],
+                                    siglas= valor['siglas'],
+                                    id_tipo = coller_ou_insertar_divisa_tipo(cur, [valor['tipo']])[0].id_
+                                    )
 
-            cur.execute('insert into divisa("id", "simbolo", "nome", "siglas", "id_tipo", "data")'\
-                    f' values("{nova_divisa.id_}", ?, "{nova_divisa.nome}",'\
-                    f' "{nova_divisa.siglas}", "{nova_divisa.id_tipo}", "{nova_divisa.data}")',
-                    (nulo_se_baleiro(nova_divisa.simbolo),))
-            divisas.append(nova_divisa)
+                    cur.execute('insert into divisa("id", "simbolo", "nome", "siglas", "id_tipo", "data")'\
+                            f' values("{nova_divisa.id_}", ?, "{nova_divisa.nome}",'\
+                            f' "{nova_divisa.siglas}", "{nova_divisa.id_tipo}", "{nova_divisa.data}")',
+                            (nulo_se_baleiro(nova_divisa.simbolo),))
+                except IntegrityError:
+                    pass
+                except Exception as e:
+                    raise e
+                else:
+                    divisas.append(nova_divisa)
+                    break
 
     return divisas
+# ------------------------------------------------------------------------------
+def insertar_taboa(cur: Cursor, clase: Union[Top, Prezo, Topx]) -> List[Union[Top, Prezo, Topx]]:
+    taboas = {
+            Top : insertar_top#,
+            #Prezo: insertar_prezo,
+            #Topx: insertar_topx
+            }
+    try:
+        return taboas[type(clase)](cur, clase)
+    except KeyError:
+        raise TaboaInexistenteErro
+    except Exception as e:
+        raise e
+
+def insertar_top(cur: Cursor, top: Top) -> None:
+    # soamente insertar
+    cur.execute('insert into top(data, id_paxina) '\
+            f'values("{top.data}", "{top.id_paxina}")')
 # ------------------------------------------------------------------------------
 def sair(con: Connection) -> None:
     con.commit()
@@ -147,6 +189,25 @@ def main_aux(RAIZ: str, cur: Cursor, cnf: Dict[str, str]) -> None:
         raise TopxNonNumeroErro
     except Exception as e:
         raise e
+
+    tops = []
+    for paxina in paxinas:
+        while True:
+            try:
+                top_pax = Top(id_paxina= paxina.id_)
+                insertar_taboa(cur, top_pax)
+            except IntegrityError:
+                raise
+            except Exception as e:
+                raise e
+            else:
+                tops.append(top_pax)
+                break
+        # get_top da páxina
+        # insertar o top conseguido na táboa topx posición a posicion
+        # mirar se se gardan máis info guai
+
+    # gardar o prezo das divisas que non sexan fiat
 
     print(paxinas[0].nome)
     print(divisas[2])

@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:38:36.890366
-#+ Editado:	2022/02/09 19:31:10.216034
+#+ Editado:	2022/02/09 21:56:15.430253
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
 from datetime import datetime as dt
@@ -22,6 +22,7 @@ class Divisa:
     nome: str
     siglas: str
     id_tipo: str
+    max_cant: int = field(default=None)
     id_: str = field(default_factory=chave)
     data: str = field(default_factory=dt.now)
 

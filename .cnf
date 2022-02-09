@@ -17,13 +17,17 @@
                         "simbolo": "€",
                         "nome": "Euro",
                         "siglas": "eur",
-                        "tipo": "fiat"
+                        "tipo": "fiat",
+                        "maxima cantidade": "0"
+
                     },
                     {
                         "simbolo": "$",
                         "nome": "Dollar",
                         "siglas": "usd",
-                        "tipo": "fiat"
+                        "tipo": "fiat",
+                        "maxima cantidade": "0"
+
                     }
                     ],
 
@@ -32,13 +36,15 @@
                     "simbolo": "₿",
                     "nome": "Bitcoin",
                     "siglas": "BTC",
-                    "tipo": "criptomoeda"
+                    "tipo": "criptomoeda",
+                    "maxima cantidade": "21000000"
                 },
                 {
                     "simbolo": "",
                     "nome": "Ethereum",
                     "siglas": "ETH",
-                    "tipo": "criptomoeda"
+                    "tipo": "criptomoeda",
+                    "maxima cantidade": "0"
                 }
                 ],
 

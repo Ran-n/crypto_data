@@ -12,19 +12,22 @@
                         ],
 
 
+    "divisas_ref": [
+                    {
+                        "simbolo": "€",
+                        "nome": "Euro",
+                        "siglas": "eur",
+                        "tipo": "fiat"
+                    },
+                    {
+                        "simbolo": "$",
+                        "nome": "Dollar",
+                        "siglas": "usd",
+                        "tipo": "fiat"
+                    }
+                    ],
+
     "divisas": [
-                {
-                    "simbolo": "€",
-                    "nome": "Euro",
-                    "siglas": "eur",
-                    "tipo": "fiat"
-                },
-                {
-                    "simbolo": "$",
-                    "nome": "Dollar",
-                    "siglas": "usd",
-                    "tipo": "fiat"
-                },
                 {
                     "simbolo": "₿",
                     "nome": "Bitcoin",

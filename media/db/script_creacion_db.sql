@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS "divisa"(
     "simbolo"   TEXT UNIQUE,
     "nome"      TEXT UNIQUE NOT NULL,
     "siglas"    TEXT UNIQUE NOT NULL,
-    "max_cant"  INTEGER,
     "data"      TEXT NOT NULL,
     "id_tipo"   TEXT NOT NULL,
     "borrado"   INTEGER NOT NULL DEFAULT 0,

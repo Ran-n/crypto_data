@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/02/09 22:10:38.529168
+#+ Editado:	2022/02/09 20:53:11.962023
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -129,9 +129,8 @@ def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
                 simbolo= dato[1],
                 nome= dato[2],
                 siglas= dato[3],
-                max_cant= dato[4],
-                data= dato[5],
-                id_tipo= dato[6]
+                data= dato[4],
+                id_tipo= dato[5]
                 ))
         else:
             while True:
@@ -140,14 +139,13 @@ def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
                                     simbolo= valor['simbolo'],
                                     nome= valor['nome'],
                                     siglas= valor['siglas'],
-                                    max_cant= valor['maxima cantidade'],
                                     id_tipo = coller_ou_insertar_divisa_tipo(cur, [valor['tipo']])[0].id_
                                     )
 
-                    cur.execute('insert into divisa("id", "simbolo", "nome", "siglas", "id_tipo", "data", "max_cant")'\
+                    cur.execute('insert into divisa("id", "simbolo", "nome", "siglas", "id_tipo", "data")'\
                             f' values("{nova_divisa.id_}", ?, "{nova_divisa.nome}",'\
-                            f' "{nova_divisa.siglas}", "{nova_divisa.id_tipo}", "{nova_divisa.data}", ?)',
-                            (nulo_se_baleiro(nova_divisa.simbolo), nulo_se_baleiro(nova_divisa.max_cant)))
+                            f' "{nova_divisa.siglas}", "{nova_divisa.id_tipo}", "{nova_divisa.data}")',
+                            (nulo_se_baleiro(nova_divisa.simbolo),))
                 except IntegrityError:
                     pass
                 except Exception as e:
@@ -196,7 +194,6 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
                                         'simbolo': '',
                                         'nome': moeda['nome'],
                                         'siglas': moeda['simbolo'],
-                                        'maxima cantidade': "",
                                         'tipo': 'criptomoeda'
                                         }])[0]
         temp_topx = Topx(

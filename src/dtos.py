@@ -21,6 +21,7 @@ class Divisa:
     simbolo: str
     nome: str
     siglas: str
+    nomesigla: str
     id_tipo: str
     id_: str = field(default_factory=chave)
     data: str = field(default_factory=dt.now)
@@ -36,13 +37,6 @@ class Paxina:
 class Top:
     id_paxina: int
     id_: int = field(default=-1)
-    data: str = field(default_factory=dt.now)
-
-@dataclass
-class Prezo:
-    id_divisa: str
-    id_divisa_ref: str
-    prezo: str
     data: str = field(default_factory=dt.now)
 
 @dataclass

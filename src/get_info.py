@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/02/09 20:53:11.962023
+#+ Editado:	2022/02/10 20:26:27.352877
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -18,11 +18,11 @@ from coinmarketcap_scrapper import CoinMarketCap
 from coingecko_api import CoinGecko
 
 
-from .dtos import Divisa_Tipo, Divisa, Paxina, Top, Prezo, Topx
+from .dtos import Divisa_Tipo, Divisa, Paxina, Top, Topx
 from .excepcions import TaboaInexistenteErro, TopxNonNumeroErro, PaxinaNonExistenteErro
 from .uteis_local import nulo_se_baleiro
 # ------------------------------------------------------------------------------
-def coller_todo_taboa(cur: Cursor, taboa: str) -> List[Union[Divisa_Tipo, Divisa, Paxina, Top, Prezo, Topx]]:
+def coller_todo_taboa(cur: Cursor, taboa: str) -> List[Union[Divisa_Tipo, Divisa, Paxina, Top, Topx]]:
 
     taboas = {
             'paxina': coller_todo_paxina,
@@ -46,7 +46,7 @@ def coller_todo_paxina(cur: Cursor) -> List[Paxina]:
             ))
     return paxinas
 # ------------------------------------------------------------------------------
-def coller_ou_insertar_taboa(cur: Cursor, taboa: str, valores: Union[List[str], List[Dict[str, str]]]) -> Union[List[Union[Divisa_Tipo, Divisa, Paxina]], Top]:
+def coller_ou_insertar_taboa(cur: Cursor, taboa: str, valores: Union[List[str], List[Dict[str, str]]]) -> List[Union[Divisa_Tipo, Divisa, Paxina]]:
     taboas = {
             'paxina': coller_ou_insertar_paxina,
             'divisa_tipo': coller_ou_insertar_divisa_tipo,
@@ -121,7 +121,7 @@ def coller_ou_insertar_divisa_tipo(cur: Cursor, nomes: List[str]) -> List[Divisa
 def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> List[Divisa]:
     divisas = []
     for valor in valores:
-        dato = cur.execute(f'''select * from divisa where nome="{valor['nome']}"''').fetchone()
+        dato = cur.execute(f'''select * from divisa where nomesigla="{valor['nome']+valor['siglas']}"''').fetchone()
 
         if dato:
             divisas.append(Divisa(
@@ -129,8 +129,9 @@ def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
                 simbolo= dato[1],
                 nome= dato[2],
                 siglas= dato[3],
-                data= dato[4],
-                id_tipo= dato[5]
+                nomesigla= dato[4],
+                data= dato[5],
+                id_tipo= dato[6]
                 ))
         else:
             while True:
@@ -139,12 +140,13 @@ def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
                                     simbolo= valor['simbolo'],
                                     nome= valor['nome'],
                                     siglas= valor['siglas'],
+                                    nomesigla= valor['nome']+valor['siglas'],
                                     id_tipo = coller_ou_insertar_divisa_tipo(cur, [valor['tipo']])[0].id_
                                     )
 
-                    cur.execute('insert into divisa("id", "simbolo", "nome", "siglas", "id_tipo", "data")'\
-                            f' values("{nova_divisa.id_}", ?, "{nova_divisa.nome}",'\
-                            f' "{nova_divisa.siglas}", "{nova_divisa.id_tipo}", "{nova_divisa.data}")',
+                    cur.execute('insert into divisa("id", "simbolo", "nome", "siglas", "nomesigla", "id_tipo", "data")'\
+                            f' values("{nova_divisa.id_}", ?, "{nova_divisa.nome}", "{nova_divisa.siglas}",'\
+                            f' "{nova_divisa.nomesigla}", "{nova_divisa.id_tipo}", "{nova_divisa.data}")',
                             (nulo_se_baleiro(nova_divisa.simbolo),))
                 except IntegrityError:
                     pass
@@ -156,10 +158,9 @@ def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
 
     return divisas
 # ------------------------------------------------------------------------------
-def insertar_taboa(cur: Cursor, clase: Union[Top, Prezo, Topx]) -> int:
+def insertar_taboa(cur: Cursor, clase: Union[Top, Topx]) -> int:
     taboas = {
             Top : insertar_top,
-            #Prezo: insertar_prezo,
             Topx: insertar_topx
             }
     try:
@@ -167,6 +168,7 @@ def insertar_taboa(cur: Cursor, clase: Union[Top, Prezo, Topx]) -> int:
     except KeyError:
         raise TaboaInexistenteErro
     except Exception as e:
+        print(clase)
         raise e
 
 def insertar_top(cur: Cursor, top: Top) -> int:
@@ -176,12 +178,17 @@ def insertar_top(cur: Cursor, top: Top) -> int:
     return cur.execute('select id from top order by id desc').fetchone()[0]
 
 def insertar_topx(cur: Cursor, topx: Topx) -> int:
-    cur.execute('insert into topx(id_divisa, id_top, data, posicion, prezo, id_divisa_ref) '\
+    try:
+        cur.execute('insert into topx(id_divisa, id_top, data, posicion, prezo, id_divisa_ref) '\
             f'values("{topx.id_divisa}", "{topx.id_top}", "{topx.data}", "{topx.posicion}"'\
             f', "{topx.prezo}", "{topx.id_divisa_ref}")')
+    except IntegrityError:
+        print(f'Duplicado {topx}')
+        pass
     return -1
 # ------------------------------------------------------------------------------
 def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
+    if DEBUG: print('* Collendo o top de CoinMarketCap')
     l_topsx = []
 
     # este non vai utilizar o das divisas porque os prezos sempre os da en dolar
@@ -210,8 +217,40 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
     return l_topsx
 
 def get_topx_CG(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
+    if DEBUG: print('* Collendo o top de CoinGecko')
     l_topsx = []
-    cg = CoinGecko()
+
+    # xFCR: TEMPORAL
+    for divisa_ref in divisas_ref:
+        if divisa_ref.simbolo == '$':
+            break
+
+    lista_moedas = CoinGecko().get_coins()
+    if topx != 0:
+        lista_moedas = lista_moedas[:topx]
+
+    for index, moeda in enumerate(lista_moedas, 1):
+        temp_divisa = coller_ou_insertar_divisa(cur, [{
+            'simbolo': '',
+            'nome': moeda['name'],
+            'siglas': moeda['symbol'].upper(),
+            'tipo': 'criptomoeda'
+        }])[0]
+
+        temp_topx = Topx(
+            id_divisa       = temp_divisa.id_,
+            id_top          = id_top,
+            posicion        = index,
+            prezo           = moeda['market_data']['current_price']['usd'],
+            id_divisa_ref   = divisa_ref.id_
+        )
+
+        insertar_taboa(cur, temp_topx)
+        l_topsx.append(temp_topx)
+
+        #for divisa_ref in divisas_ref:
+
+    return l_topsx
 
 def get_topsx(cur: Cursor, topx: int, paxina_nome: str, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
     '''
@@ -245,6 +284,7 @@ def main_aux(RAIZ: str, cur: Cursor, cnf: Dict[str, str]) -> None:
     divisas_ref = coller_ou_insertar_taboa(cur, 'divisa', cnf['divisas_ref'])
     #divisas_todas = [*divisas, *divisas_ref]
 
+    """
     # get id divisa fiat
     for divisa_tipo in divisa_tipos:
         if divisa_tipo.nome == 'fiat':
@@ -256,6 +296,7 @@ def main_aux(RAIZ: str, cur: Cursor, cnf: Dict[str, str]) -> None:
     for divisa in divisas:
         if divisa.id_tipo == id_fiat:
             divisas_fiat.append(divisa)
+    """
 
     try:
         topx = int(cnf['topx'])
@@ -271,25 +312,23 @@ def main_aux(RAIZ: str, cur: Cursor, cnf: Dict[str, str]) -> None:
                 top_pax = Top(id_paxina= paxina.id_)
                 top_pax.id_ = insertar_taboa(cur, top_pax)
             except IntegrityError:
-                raise
+                raise Exception
             except Exception as e:
                 raise e
             else:
                 tops.append(top_pax)
                 break
         # get_top da páxina
+        # xFCR: mirar se se gardan máis info guai
         get_topsx(cur, topx, paxina.nome, divisas_ref, top_pax.id_)
-
-        # insertar o top conseguido na táboa topx posición a posicion
-        # mirar se se gardan máis info guai
 
     # gardar o prezo das divisas que non sexan fiat
 
-    print(paxinas[0].nome)
-    #print(divisas_todas[2])
+def main(RAIZ: str, debug: bool) -> None:
+    global DEBUG
+    DEBUG = debug
 
-
-def main(RAIZ: str, DEBUG: bool) -> None:
+    if DEBUG: print('* Comezando\n')
     cnf = cargarJson('.cnf')
     con = sqlite3.connect(os.path.join(RAIZ, cnf['db']))
 
@@ -297,10 +336,10 @@ def main(RAIZ: str, DEBUG: bool) -> None:
         cur = con.cursor()
         main_aux(RAIZ, cur, cnf)
     except KeyboardInterrupt:
-        print()
-        if DEBUG: print('* Saíndo do programa.')
+        if DEBUG: print('\n* Saíndo do programa.')
     except Exception as e:
         raise e
     finally:
         sair(con)
+        if DEBUG: print('\n* Rematado')
 # ------------------------------------------------------------------------------

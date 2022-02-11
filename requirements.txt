@@ -1,3 +1,4 @@
 coingecko_api==1.2
 coinmarketcap_scrapper==2.1
+halo==0.0.31
 uteis==0.1.2.2

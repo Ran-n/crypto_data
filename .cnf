@@ -12,35 +12,32 @@
                         ],
 
 
-    "divisas_ref": [
+    "divisas": [
                     {
                         "simbolo": "€",
                         "nome": "Euro",
-                        "siglas": "eur",
+                        "siglas": "EUR",
                         "tipo": "fiat"
                     },
                     {
                         "simbolo": "$",
                         "nome": "Dollar",
-                        "siglas": "usd",
+                        "siglas": "USD",
                         "tipo": "fiat"
+                    },
+                    {
+                        "simbolo": "₿",
+                        "nome": "Bitcoin",
+                        "siglas": "BTC",
+                        "tipo": "criptomoeda"
+                    },
+                    {
+                        "simbolo": "∈",
+                        "nome": "Ethereum",
+                        "siglas": "ETH",
+                        "tipo": "criptomoeda"
                     }
                     ],
-
-    "divisas": [
-                {
-                    "simbolo": "₿",
-                    "nome": "Bitcoin",
-                    "siglas": "BTC",
-                    "tipo": "criptomoeda"
-                },
-                {
-                    "simbolo": "",
-                    "nome": "Ethereum",
-                    "siglas": "ETH",
-                    "tipo": "criptomoeda"
-                }
-                ],
 
 
     "paxinas": [
@@ -52,7 +49,7 @@
                     "nome": "CoinMarketCap",
                     "ligazon": "https://coinmarketcap.com"
                 }
-                ],
+               ],
 
 
     "topx": 0

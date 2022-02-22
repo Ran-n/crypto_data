@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/02/11 21:28:01.672734
+#+ Editado:	2022/02/22 20:51:51.866606
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -107,6 +107,13 @@ def coller_ou_insertar_divisa_tipo(cur: Cursor, nomes: List[str]) -> List[Divisa
             while True:
                 try:
                     nova_divisa_tipo = Divisa_Tipo(nome= nome)
+
+                    while True
+                        if len(cur.execute(f'select * from divisa_tipo where id={nova_divisa_tipo.id_}').fetchone()) == 1:
+                            nova_divisa_tipo.reset_id()
+                        else:
+                            break
+
                     cur.execute('insert into divisa_tipo("id", "nome", "data")'\
                             f' values("{nova_divisa_tipo.id_}", "{nova_divisa_tipo.nome}", "{nova_divisa_tipo.data}")')
                 except IntegrityError:
@@ -146,6 +153,12 @@ def coller_ou_insertar_divisa(cur: Cursor, valores: List[Dict[str, str]]) -> Lis
                                     nomesigla= valor['nome']+valor['siglas'],
                                     id_tipo = coller_ou_insertar_divisa_tipo(cur, [valor['tipo']])[0].id_
                                     )
+
+                    while True
+                        if len(cur.execute(f'select * from divisa where id={nova_divisa.id_}').fetchone()) == 1:
+                            nova_divisa.reset_id()
+                        else:
+                            break
 
                     cur.execute('insert into divisa("id", "simbolo", "nome", "siglas", "nomesigla", "id_tipo", "data")'\
                             f' values("{nova_divisa.id_}", ?, "{nova_divisa.nome}", "{nova_divisa.siglas}",'\
@@ -202,52 +215,60 @@ def insertar_topx(cur: Cursor, topx: Topx) -> int:
     return -1
 # ------------------------------------------------------------------------------
 def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
-    if DEBUG: print('* Collendo o top de CoinMarketCap')
-    l_topsx = []
+        if DEBUG: print('* Collendo o top de CoinMarketCap')
+        l_topsx = []
 
-    # este non vai utilizar o das divisas porque os prezos sempre os da en dolar
-    for divisa_ref in divisas_ref:
-        if divisa_ref.simbolo == '$':
-            break
+        # este non vai utilizar o das divisas porque os prezos sempre os da en dolar
+        for divisa_ref in divisas_ref:
+            if divisa_ref.simbolo == '$':
+                break
 
-    for moeda in CoinMarketCap().get_top(topx):
-        temp_divisa = coller_ou_insertar_divisa(cur, [{
-                                        'simbolo': '',
-                                        'nome': moeda['nome'],
-                                        'siglas': moeda['simbolo'],
-                                        'tipo': 'criptomoeda'
-                                        }])[0]
-        temp_topx = Topx(
-            id_divisa                           = temp_divisa.id_,
-            id_top                              = id_top,
-            posicion                            = moeda['posicion'],
-            prezo                               = moeda['prezo'].replace(',',''),
-            market_cap                          = None,
-            fully_diluted_valuation             = None,
-            total_volume                        = None,
-            max_24h                             = None,
-            min_24h                             = None,
-            price_change_24h                    = None,
-            price_change_pctx_24h               = None,
-            circulating_supply                  = None,
-            total_supply                        = None,
-            max_supply                          = None,
-            ath                                 = None,
-            ath_change_pctx                     = None,
-            data_ath                            = None,
-            atl                                 = None,
-            atl_change_pctx                     = None,
-            data_atl                            = None,
-            price_change_pctx_1h_divisa_ref     = None,
-            price_change_pctx_24h_divisa_ref    = None,
-            price_change_pctx_7d_divisa_ref     = None,
-            id_divisa_ref                       = divisa_ref.id_
-        )
+        cmc = CoinMarketCap()
 
-        insertar_taboa(cur, temp_topx)
-        l_topsx.append(temp_topx)
+        for moeda in cmc.get_top(topx):
+            temp_divisa = coller_ou_insertar_divisa(cur, [{
+                                            'simbolo': '',
+                                            'nome': moeda['nome'],
+                                            'siglas': moeda['simbolo'],
+                                            'tipo': 'criptomoeda'
+                                            }])[0]
 
-    return l_topsx
+            print()
+            print(moeda)
+            print()
+            info_moeda = cmc.get_moeda(moeda['nome'])
+
+            temp_topx = Topx(
+                id_divisa                           = temp_divisa.id_,
+                id_top                              = id_top,
+                posicion                            = moeda['posicion'],
+                prezo                               = info_moeda['prezo'],
+                market_cap                          = info_moeda['market_cap'],
+                fully_diluted_valuation             = None,
+                total_volume                        = None,
+                max_24h                             = info_moeda['max_24h'],
+                min_24h                             = info_moeda['min_24h'],
+                price_change_24h                    = info_moeda['price_change_24h'],
+                price_change_pctx_24h               = info_moeda['price_change_pctx_24h'],
+                circulating_supply                  = info_moeda['circulating_supply'],
+                total_supply                        = info_moeda['total_supply'],
+                max_supply                          = info_moeda['max_supply'],
+                ath                                 = info_moeda['ath'],
+                ath_change_pctx                     = info_moeda['ath_change_pctx'],
+                data_ath                            = None,
+                atl                                 = info_moeda['atl'],
+                atl_change_pctx                     = info_moeda['atl_change_pctx'],
+                data_atl                            = None,
+                price_change_pctx_1h_divisa_ref     = None,
+                price_change_pctx_24h_divisa_ref    = None,
+                price_change_pctx_7d_divisa_ref     = None,
+                id_divisa_ref                       = divisa_ref.id_
+            )
+
+            insertar_taboa(cur, temp_topx)
+            l_topsx.append(temp_topx)
+
+        return l_topsx
 
 def get_topx_CG(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
     if DEBUG: print('* Collendo o top de CoinGecko')

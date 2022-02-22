@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:38:36.890366
-#+ Editado:	2022/02/11 19:53:49.677468
+#+ Editado:	2022/02/22 20:51:22.557241
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
 from datetime import datetime as dt
@@ -16,6 +16,9 @@ class Divisa_Tipo:
     id_: str = field(default_factory=chave)
     data: str = field(default_factory=dt.now)
 
+    def reset_id(self):
+        self.id_ = chave()
+
 @dataclass
 class Divisa:
     simbolo: str
@@ -25,6 +28,9 @@ class Divisa:
     id_tipo: str
     id_: str = field(default_factory=chave)
     data: str = field(default_factory=dt.now)
+
+    def reset_id(self):
+        self.id_ = chave()
 
 @dataclass
 class Paxina:

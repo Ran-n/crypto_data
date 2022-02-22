@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/02/22 20:51:51.866606
+#+ Editado:	2022/02/22 20:53:07.375758
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -108,7 +108,7 @@ def coller_ou_insertar_divisa_tipo(cur: Cursor, nomes: List[str]) -> List[Divisa
                 try:
                     nova_divisa_tipo = Divisa_Tipo(nome= nome)
 
-                    while True
+                    while True:
                         if len(cur.execute(f'select * from divisa_tipo where id={nova_divisa_tipo.id_}').fetchone()) == 1:
                             nova_divisa_tipo.reset_id()
                         else:

@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/02/25 19:24:05.073480
+#+ Editado:	2022/03/01 22:53:27.131409
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -237,20 +237,16 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
         if divisa_ref.simbolo == '$':
             break
 
-    cmc = CoinMarketCap(verbose= DEBUG)
+    #cmc = CoinMarketCap(verbose= DEBUG)
+    cmc = CoinMarketCap()
 
-    moedas = cmc.get_top(topx)
-    lonx_moedas(len(moedas))
-
-    for moeda in tqdm(moedas):
+    for moeda in tqdm(cmc.get_top(topx), desc='CoinMarketCap'):
         temp_divisa = coller_ou_insertar_divisa(cur, [{
                                         'simbolo': '',
                                         'nome': moeda['nome'],
                                         'siglas': moeda['simbolo'],
                                         'tipo': 'criptomoeda'
                                         }])[0]
-
-        if DEBUG: print(f'{moeda["posicion"]} de {lonx_moedas}')
 
         try:
             info_moeda = cmc.get_moeda(moeda['ligazon'], 'ligazon')
@@ -281,6 +277,25 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
                 price_change_pctx_1h_divisa_ref     = None,
                 price_change_pctx_24h_divisa_ref    = None,
                 price_change_pctx_7d_divisa_ref     = None,
+                price_change_pctx_14d_divisa_ref    = None,
+                price_change_pctx_30d_divisa_ref    = None,
+                price_change_pctx_200d_divisa_ref   = None,
+                price_change_pctx_365d_divisa_ref   = None,
+                max_7d                              = None,
+                min_7d                              = None,
+                max_30d                             = None,
+                min_30d                             = None,
+                max_90d                             = None,
+                min_90d                             = None,
+                max_365d                            = None,
+                min_365d                            = None,
+                roi                                 = None,
+                trading_volume_24h                  = None,
+                trading_volume_change_pctx_24h      = None,
+                volume_dividido_market_cap          = None,
+                dominancia                          = None,
+                total_value_locked                  = None,
+                watchlists_stars                    = None,
                 id_divisa_ref                       = divisa_ref.id_
             )
         else:
@@ -295,19 +310,38 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
                 max_24h                             = info_moeda['max_24h'],
                 min_24h                             = info_moeda['min_24h'],
                 price_change_24h                    = info_moeda['price_change_24h'],
-                price_change_pctx_24h               = info_moeda['price_change_pctx_24h'].replace('%',''),
+                price_change_pctx_24h               = info_moeda['price_change_pctx_24h'].replace('%','') if info_moeda['price_change_pctx_24h'] != None else None,
                 circulating_supply                  = info_moeda['circulating_supply'],
                 total_supply                        = info_moeda['total_supply'],
                 max_supply                          = info_moeda['max_supply'],
                 ath                                 = info_moeda['ath'],
-                ath_change_pctx                     = info_moeda['ath_change_pctx'].replace('%',''),
+                ath_change_pctx                     = info_moeda['ath_change_pctx'].replace('%','') if info_moeda['ath_change_pctx'] != None else None,
                 data_ath                            = None,
                 atl                                 = info_moeda['atl'],
-                atl_change_pctx                     = info_moeda['atl_change_pctx'].replace('%',''),
+                atl_change_pctx                     = info_moeda['atl_change_pctx'].replace('%','') if info_moeda['atl_change_pctx'] != None else None,
                 data_atl                            = None,
                 price_change_pctx_1h_divisa_ref     = None,
                 price_change_pctx_24h_divisa_ref    = None,
                 price_change_pctx_7d_divisa_ref     = None,
+                price_change_pctx_14d_divisa_ref    = None,
+                price_change_pctx_30d_divisa_ref    = None,
+                price_change_pctx_200d_divisa_ref   = None,
+                price_change_pctx_365d_divisa_ref   = None,
+                max_7d                              = info_moeda['max_7d'],
+                min_7d                              = info_moeda['min_7d'],
+                max_30d                             = info_moeda['max_30d'],
+                min_30d                             = info_moeda['min_30d'],
+                max_90d                             = info_moeda['max_90d'],
+                min_90d                             = info_moeda['min_90d'],
+                max_365d                            = info_moeda['max_52semanas'],
+                min_365d                            = info_moeda['min_52semanas'],
+                roi                                 = info_moeda['roi'],
+                trading_volume_24h                  = info_moeda['trading_volume_24h'],
+                trading_volume_change_pctx_24h      = info_moeda['trading_volume_change_pctx_24h'].replace('%','') if info_moeda['trading_volume_change_pctx_24h'] != None else None,
+                volume_dividido_market_cap          = info_moeda['volume_dividido_market_cap'],
+                dominancia                          = info_moeda['dominancia_mercado'],
+                total_value_locked                  = info_moeda['total_value_locked'],
+                watchlists_stars                    = info_moeda['watchlists'],
                 id_divisa_ref                       = divisa_ref.id_
             )
         finally:
@@ -324,6 +358,7 @@ def get_topx_CG(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) 
     if topx == 0:
         tope = False
 
+    cpp = ['1h', '24h', '7d', '14d', '30d', '200d', '1y']
     cg = CoinGecko()
 
     for divisa_ref in tqdm(divisas_ref, desc='CoinGecko'):
@@ -332,7 +367,11 @@ def get_topx_CG(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) 
             # a veces da erro nidea de por que xdd
             while True:
                 try:
-                    l_moedas_cg = cg.get_coins_markets(id_moeda_vs=divisa_ref.siglas.lower(), pax=pax)
+                    l_moedas_cg = cg.get_coins_markets(
+                            id_moeda_vs=divisa_ref.siglas.lower(),
+                            pax=pax,
+                            cambio_prezo_porcentaxe = cpp
+                            )
                 except:
                     pass
                 else:
@@ -377,6 +416,25 @@ def get_topx_CG(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) 
                     price_change_pctx_1h_divisa_ref     = __mais_menos(moeda['price_change_percentage_1h_in_currency']),
                     price_change_pctx_24h_divisa_ref    = __mais_menos(moeda['price_change_percentage_24h_in_currency']),
                     price_change_pctx_7d_divisa_ref     = __mais_menos(moeda['price_change_percentage_7d_in_currency']),
+                    price_change_pctx_14d_divisa_ref    = __mais_menos(moeda['price_change_percentage_14d_in_currency']),
+                    price_change_pctx_30d_divisa_ref    = __mais_menos(moeda['price_change_percentage_30d_in_currency']),
+                    price_change_pctx_200d_divisa_ref   = __mais_menos(moeda['price_change_percentage_200d_in_currency']),
+                    price_change_pctx_365d_divisa_ref   = __mais_menos(moeda['price_change_percentage_1y_in_currency']),
+                    roi                                 = moeda['roi'],
+                    max_7d                              = None,
+                    min_7d                              = None,
+                    max_30d                             = None,
+                    min_30d                             = None,
+                    max_90d                             = None,
+                    min_90d                             = None,
+                    max_365d                            = None,
+                    min_365d                            = None,
+                    trading_volume_24h                  = None,
+                    trading_volume_change_pctx_24h      = None,
+                    volume_dividido_market_cap          = None,
+                    dominancia                          = None,
+                    total_value_locked                  = None,
+                    watchlists_stars                    = None,
                     id_divisa_ref                       = divisa_ref.id_
                 )
 

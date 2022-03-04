@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/03/01 22:53:27.131409
+#+ Editado:	2022/03/04 14:40:04.455615
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -213,7 +213,6 @@ def insertar_topx(cur: Cursor, topx: Topx) -> int:
             topx.price_change_pctx_24h_divisa_ref, topx.price_change_pctx_7d_divisa_ref))
     except IntegrityError:
         print(f'Duplicado {topx}')
-        raise
         pass
     return -1
 # ------------------------------------------------------------------------------
@@ -229,7 +228,7 @@ def __mais_menos(valor: str) -> str:
         return '+'+valor
 
 def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
-    if DEBUG: print('* Collendo o top de CoinMarketCap')
+    #if DEBUG: print('* Collendo o top de CoinMarketCap')
     l_topsx = []
 
     # este non vai utilizar o das divisas porque os prezos sempre os da en dolar
@@ -250,8 +249,8 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
 
         try:
             info_moeda = cmc.get_moeda(moeda['ligazon'], 'ligazon')
-        except:
-            print('Erro')
+        except Exception as e:
+            print(f'Erro: {e}')
             print(moeda)
             temp_topx = Topx(
                 id_divisa                           = temp_divisa.id_,
@@ -351,7 +350,7 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
     return l_topsx
 
 def get_topx_CG(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
-    if DEBUG: print('* Collendo o top de CoinGecko')
+    #if DEBUG: print('* Collendo o top de CoinGecko')
     l_topsx = []
 
     tope = True

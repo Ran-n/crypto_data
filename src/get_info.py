@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/03/04 14:40:04.455615
+#+ Editado:	2022/03/08 08:15:14.564822
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -298,51 +298,54 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
                 id_divisa_ref                       = divisa_ref.id_
             )
         else:
-            temp_topx = Topx(
-                id_divisa                           = temp_divisa.id_,
-                id_top                              = id_top,
-                posicion                            = moeda['posicion'],
-                prezo                               = info_moeda['prezo'],
-                market_cap                          = info_moeda['market_cap'],
-                fully_diluted_valuation             = None,
-                total_volume                        = None,
-                max_24h                             = info_moeda['max_24h'],
-                min_24h                             = info_moeda['min_24h'],
-                price_change_24h                    = info_moeda['price_change_24h'],
-                price_change_pctx_24h               = info_moeda['price_change_pctx_24h'].replace('%','') if info_moeda['price_change_pctx_24h'] != None else None,
-                circulating_supply                  = info_moeda['circulating_supply'],
-                total_supply                        = info_moeda['total_supply'],
-                max_supply                          = info_moeda['max_supply'],
-                ath                                 = info_moeda['ath'],
-                ath_change_pctx                     = info_moeda['ath_change_pctx'].replace('%','') if info_moeda['ath_change_pctx'] != None else None,
-                data_ath                            = None,
-                atl                                 = info_moeda['atl'],
-                atl_change_pctx                     = info_moeda['atl_change_pctx'].replace('%','') if info_moeda['atl_change_pctx'] != None else None,
-                data_atl                            = None,
-                price_change_pctx_1h_divisa_ref     = None,
-                price_change_pctx_24h_divisa_ref    = None,
-                price_change_pctx_7d_divisa_ref     = None,
-                price_change_pctx_14d_divisa_ref    = None,
-                price_change_pctx_30d_divisa_ref    = None,
-                price_change_pctx_200d_divisa_ref   = None,
-                price_change_pctx_365d_divisa_ref   = None,
-                max_7d                              = info_moeda['max_7d'],
-                min_7d                              = info_moeda['min_7d'],
-                max_30d                             = info_moeda['max_30d'],
-                min_30d                             = info_moeda['min_30d'],
-                max_90d                             = info_moeda['max_90d'],
-                min_90d                             = info_moeda['min_90d'],
-                max_365d                            = info_moeda['max_52semanas'],
-                min_365d                            = info_moeda['min_52semanas'],
-                roi                                 = info_moeda['roi'],
-                trading_volume_24h                  = info_moeda['trading_volume_24h'],
-                trading_volume_change_pctx_24h      = info_moeda['trading_volume_change_pctx_24h'].replace('%','') if info_moeda['trading_volume_change_pctx_24h'] != None else None,
-                volume_dividido_market_cap          = info_moeda['volume_dividido_market_cap'],
-                dominancia                          = info_moeda['dominancia_mercado'],
-                total_value_locked                  = info_moeda['total_value_locked'],
-                watchlists_stars                    = info_moeda['watchlists'],
-                id_divisa_ref                       = divisa_ref.id_
-            )
+            try:
+                temp_topx = Topx(
+                    id_divisa                           = temp_divisa.id_,
+                    id_top                              = id_top,
+                    posicion                            = moeda['posicion'],
+                    prezo                               = info_moeda['prezo'],
+                    market_cap                          = info_moeda['market_cap'],
+                    fully_diluted_valuation             = None,
+                    total_volume                        = None,
+                    max_24h                             = info_moeda['max_24h'],
+                    min_24h                             = info_moeda['min_24h'],
+                    price_change_24h                    = info_moeda['price_change_24h'],
+                    price_change_pctx_24h               = info_moeda['price_change_pctx_24h'].replace('%','') if info_moeda['price_change_pctx_24h'] != None else None,
+                    circulating_supply                  = info_moeda['circulating_supply'],
+                    total_supply                        = info_moeda['total_supply'],
+                    max_supply                          = info_moeda['max_supply'],
+                    ath                                 = info_moeda['ath'],
+                    ath_change_pctx                     = info_moeda['ath_change_pctx'].replace('%','') if info_moeda['ath_change_pctx'] != None else None,
+                    data_ath                            = None,
+                    atl                                 = info_moeda['atl'],
+                    atl_change_pctx                     = info_moeda['atl_change_pctx'].replace('%','') if info_moeda['atl_change_pctx'] != None else None,
+                    data_atl                            = None,
+                    price_change_pctx_1h_divisa_ref     = None,
+                    price_change_pctx_24h_divisa_ref    = None,
+                    price_change_pctx_7d_divisa_ref     = None,
+                    price_change_pctx_14d_divisa_ref    = None,
+                    price_change_pctx_30d_divisa_ref    = None,
+                    price_change_pctx_200d_divisa_ref   = None,
+                    price_change_pctx_365d_divisa_ref   = None,
+                    max_7d                              = info_moeda['max_7d'],
+                    min_7d                              = info_moeda['min_7d'],
+                    max_30d                             = info_moeda['max_30d'],
+                    min_30d                             = info_moeda['min_30d'],
+                    max_90d                             = info_moeda['max_90d'],
+                    min_90d                             = info_moeda['min_90d'],
+                    max_365d                            = info_moeda['max_52semanas'],
+                    min_365d                            = info_moeda['min_52semanas'],
+                    roi                                 = info_moeda['roi'],
+                    trading_volume_24h                  = info_moeda['trading_volume_24h'],
+                    trading_volume_change_pctx_24h      = info_moeda['trading_volume_change_pctx_24h'].replace('%','') if info_moeda['trading_volume_change_pctx_24h'] != None else None,
+                    volume_dividido_market_cap          = info_moeda['volume_dividido_market_cap'],
+                    dominancia                          = info_moeda['dominancia_mercado'],
+                    total_value_locked                  = info_moeda['total_value_locked'],
+                    watchlists_stars                    = info_moeda['watchlists'],
+                    id_divisa_ref                       = divisa_ref.id_
+                )
+            except:
+                print(info_moeda)
         finally:
             insertar_taboa(cur, temp_topx)
             l_topsx.append(temp_topx)

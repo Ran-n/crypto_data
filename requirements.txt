@@ -1,5 +1,5 @@
 coingecko_api==1.2
-coinmarketcap_scrapper==2.4
+coinmarketcap_scrapper==2.5
 halo==0.0.31
 tqdm==4.62.3
 uteis==0.1.2.2

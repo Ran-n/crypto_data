@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/03/08 08:15:14.564822
+#+ Editado:	2022/03/13 21:23:03.834050
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -238,6 +238,8 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int)
 
     #cmc = CoinMarketCap(verbose= DEBUG)
     cmc = CoinMarketCap()
+    cmc.set_timeout(5)
+    cmc.set_reintentos(2)
 
     for moeda in tqdm(cmc.get_top(topx), desc='CoinMarketCap'):
         temp_divisa = coller_ou_insertar_divisa(cur, [{
@@ -363,87 +365,91 @@ def get_topx_CG(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) 
     cpp = ['1h', '24h', '7d', '14d', '30d', '200d', '1y']
     cg = CoinGecko()
 
-    for divisa_ref in tqdm(divisas_ref, desc='CoinGecko'):
-        pax = 1
-        while True:
-            # a veces da erro nidea de por que xdd
+    with tqdm(total= len(divisas_ref)*len(cg.get_coins_list()), desc= 'CoinGecko', unit=' moneroj') as pbar:
+        for divisa_ref in divisas_ref:
+            pax = 1
             while True:
-                try:
-                    l_moedas_cg = cg.get_coins_markets(
-                            id_moeda_vs=divisa_ref.siglas.lower(),
-                            pax=pax,
-                            cambio_prezo_porcentaxe = cpp
-                            )
-                except:
-                    pass
-                else:
+                # a veces da erro nidea de por que xdd
+                while True:
+                    try:
+                        l_moedas_cg = cg.get_coins_markets(
+                                id_moeda_vs=divisa_ref.siglas.lower(),
+                                pax=pax,
+                                cambio_prezo_porcentaxe = cpp
+                                )
+                    except:
+                        pass
+                    else:
+                        break
+
+                lonx_l_moedas_cg = len(l_moedas_cg)
+                if lonx_l_moedas_cg == 0 or (tope and topx <= 0):
                     break
+                else:
+                    pbar.update(lonx_l_moedas_cg)
 
-            if len(l_moedas_cg) == 0 or (tope and topx <= 0):
-                break
+                if tope:
+                    l_moedas_cg = l_moedas_cg[:topx]
+                    topx -= len(l_moedas_cg)
 
-            if tope:
-                l_moedas_cg = l_moedas_cg[:topx]
-                topx -= len(l_moedas_cg)
+                for moeda in l_moedas_cg:
+                    temp_divisa = coller_ou_insertar_divisa(cur, [{
+                        'simbolo': '',
+                        'nome': moeda['name'],
+                        'siglas': moeda['symbol'].upper(),
+                        'tipo': 'criptomoeda'
+                    }])[0]
 
-            for moeda in l_moedas_cg:
-                temp_divisa = coller_ou_insertar_divisa(cur, [{
-                    'simbolo': '',
-                    'nome': moeda['name'],
-                    'siglas': moeda['symbol'].upper(),
-                    'tipo': 'criptomoeda'
-                }])[0]
+                    temp_topx = Topx(
+                        id_divisa                           = temp_divisa.id_,
+                        id_top                              = id_top,
+                        posicion                            = moeda['market_cap_rank'],
+                        prezo                               = moeda['current_price'],
+                        market_cap                          = moeda['market_cap'],
+                        fully_diluted_valuation             = moeda['fully_diluted_valuation'],
+                        total_volume                        = moeda['total_volume'],
+                        max_24h                             = moeda['high_24h'],
+                        min_24h                             = moeda['low_24h'],
+                        price_change_24h                    = __mais_menos(moeda['price_change_24h']),
+                        price_change_pctx_24h               = __mais_menos(moeda['price_change_percentage_24h']),
+                        circulating_supply                  = moeda['circulating_supply'],
+                        total_supply                        = moeda['total_supply'],
+                        max_supply                          = moeda['max_supply'],
+                        ath                                 = moeda['ath'],
+                        ath_change_pctx                     = __mais_menos(moeda['ath_change_percentage']),
+                        data_ath                            = moeda['ath_date'],
+                        atl                                 = __mais_menos(moeda['atl']),
+                        atl_change_pctx                     = __mais_menos(moeda['atl_change_percentage']),
+                        data_atl                            = moeda['atl_date'],
+                        price_change_pctx_1h_divisa_ref     = __mais_menos(moeda['price_change_percentage_1h_in_currency']),
+                        price_change_pctx_24h_divisa_ref    = __mais_menos(moeda['price_change_percentage_24h_in_currency']),
+                        price_change_pctx_7d_divisa_ref     = __mais_menos(moeda['price_change_percentage_7d_in_currency']),
+                        price_change_pctx_14d_divisa_ref    = __mais_menos(moeda['price_change_percentage_14d_in_currency']),
+                        price_change_pctx_30d_divisa_ref    = __mais_menos(moeda['price_change_percentage_30d_in_currency']),
+                        price_change_pctx_200d_divisa_ref   = __mais_menos(moeda['price_change_percentage_200d_in_currency']),
+                        price_change_pctx_365d_divisa_ref   = __mais_menos(moeda['price_change_percentage_1y_in_currency']),
+                        roi                                 = moeda['roi'],
+                        max_7d                              = None,
+                        min_7d                              = None,
+                        max_30d                             = None,
+                        min_30d                             = None,
+                        max_90d                             = None,
+                        min_90d                             = None,
+                        max_365d                            = None,
+                        min_365d                            = None,
+                        trading_volume_24h                  = None,
+                        trading_volume_change_pctx_24h      = None,
+                        volume_dividido_market_cap          = None,
+                        dominancia                          = None,
+                        total_value_locked                  = None,
+                        watchlists_stars                    = None,
+                        id_divisa_ref                       = divisa_ref.id_
+                    )
 
-                temp_topx = Topx(
-                    id_divisa                           = temp_divisa.id_,
-                    id_top                              = id_top,
-                    posicion                            = moeda['market_cap_rank'],
-                    prezo                               = moeda['current_price'],
-                    market_cap                          = moeda['market_cap'],
-                    fully_diluted_valuation             = moeda['fully_diluted_valuation'],
-                    total_volume                        = moeda['total_volume'],
-                    max_24h                             = moeda['high_24h'],
-                    min_24h                             = moeda['low_24h'],
-                    price_change_24h                    = __mais_menos(moeda['price_change_24h']),
-                    price_change_pctx_24h               = __mais_menos(moeda['price_change_percentage_24h']),
-                    circulating_supply                  = moeda['circulating_supply'],
-                    total_supply                        = moeda['total_supply'],
-                    max_supply                          = moeda['max_supply'],
-                    ath                                 = moeda['ath'],
-                    ath_change_pctx                     = __mais_menos(moeda['ath_change_percentage']),
-                    data_ath                            = moeda['ath_date'],
-                    atl                                 = __mais_menos(moeda['atl']),
-                    atl_change_pctx                     = __mais_menos(moeda['atl_change_percentage']),
-                    data_atl                            = moeda['atl_date'],
-                    price_change_pctx_1h_divisa_ref     = __mais_menos(moeda['price_change_percentage_1h_in_currency']),
-                    price_change_pctx_24h_divisa_ref    = __mais_menos(moeda['price_change_percentage_24h_in_currency']),
-                    price_change_pctx_7d_divisa_ref     = __mais_menos(moeda['price_change_percentage_7d_in_currency']),
-                    price_change_pctx_14d_divisa_ref    = __mais_menos(moeda['price_change_percentage_14d_in_currency']),
-                    price_change_pctx_30d_divisa_ref    = __mais_menos(moeda['price_change_percentage_30d_in_currency']),
-                    price_change_pctx_200d_divisa_ref   = __mais_menos(moeda['price_change_percentage_200d_in_currency']),
-                    price_change_pctx_365d_divisa_ref   = __mais_menos(moeda['price_change_percentage_1y_in_currency']),
-                    roi                                 = moeda['roi'],
-                    max_7d                              = None,
-                    min_7d                              = None,
-                    max_30d                             = None,
-                    min_30d                             = None,
-                    max_90d                             = None,
-                    min_90d                             = None,
-                    max_365d                            = None,
-                    min_365d                            = None,
-                    trading_volume_24h                  = None,
-                    trading_volume_change_pctx_24h      = None,
-                    volume_dividido_market_cap          = None,
-                    dominancia                          = None,
-                    total_value_locked                  = None,
-                    watchlists_stars                    = None,
-                    id_divisa_ref                       = divisa_ref.id_
-                )
-
-                if temp_topx.posicion and temp_topx.prezo:
-                    insertar_taboa(cur, temp_topx)
-                    l_topsx.append(temp_topx)
-            pax+=1
+                    if temp_topx.posicion and temp_topx.prezo:
+                        insertar_taboa(cur, temp_topx)
+                        l_topsx.append(temp_topx)
+                pax+=1
 
     return l_topsx
 

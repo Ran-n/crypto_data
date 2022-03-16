@@ -44,6 +44,10 @@
                 {
                     "nome": "CoinGecko",
                     "ligazon": "https://www.coingecko.com"
+                },
+                {
+                    "nome": "CoinMarketCap",
+                    "ligazon": "https://coinmarketcap.com"
                 }
                ],
 

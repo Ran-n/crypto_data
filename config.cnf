@@ -36,6 +36,12 @@
                         "nome": "Ethereum",
                         "siglas": "ETH",
                         "tipo": "criptomoeda"
+                    },
+                    {
+                        "simbolo": "ɱ",
+                        "nome": "Monero",
+                        "siglas": "XMR",
+                        "tipo": "criptomoeda"
                     }
                     ],
 

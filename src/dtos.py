@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:38:36.890366
-#+ Editado:	2022/03/01 21:44:21.022300
+#+ Editado:	2022/03/19 21:58:08.646002
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
 from datetime import datetime as dt
@@ -52,8 +52,11 @@ class Topx:
     posicion: int
     prezo: str
     market_cap: str
+    market_cap_by_total_supply: str
+    fully_diluted_market_cap: str
     fully_diluted_valuation: str
     total_volume: str
+    volume_24h: str
     max_24h: str
     min_24h: str
     price_change_24h: str
@@ -72,23 +75,16 @@ class Topx:
     price_change_pctx_7d_divisa_ref: str
     price_change_pctx_14d_divisa_ref: str
     price_change_pctx_30d_divisa_ref: str
+    price_change_pctx_60d_divisa_ref: str
+    price_change_pctx_90d_divisa_ref: str
     price_change_pctx_200d_divisa_ref: str
     price_change_pctx_365d_divisa_ref: str
-    max_7d: str
-    min_7d: str
-    max_30d: str
-    min_30d: str
-    max_90d: str
-    min_90d: str
-    max_365d: str
-    min_365d: str
     roi: str
-    trading_volume_24h: str
-    trading_volume_change_pctx_24h: str
-    volume_dividido_market_cap: str
+    turnover: str
     dominancia: str
+    market_pair_count: str
     total_value_locked: str
-    watchlists_stars: str
+    auditada: str
     id_divisa_ref: str
     data: str = field(default_factory=dt.now)
 # ------------------------------------------------------------------------------

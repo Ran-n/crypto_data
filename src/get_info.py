@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 #+ Autor:  	Ran#
 #+ Creado: 	2022/02/08 18:18:40.139388
-#+ Editado:	2022/03/19 23:49:24.299248
+#+ Editado:	2022/03/20 00:53:28.863025
 # ------------------------------------------------------------------------------
 import os
 import sqlite3
@@ -257,15 +257,14 @@ def insertar_topx(cur: Cursor, topx: Topx) -> int:
     return -1
 # ------------------------------------------------------------------------------
 def __mais_menos(valor: str) -> str:
-    """
-    """
+        """
+        """
 
-    valor = str(valor)
-
-    if valor.startswith('-'):
-        return valor
-    else:
-        return '+'+valor
+        valor = str(valor)
+        if valor.startswith('-') or valor == '0':
+            return valor
+        else:
+            return '+'+valor
 
 """
 def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top: int) -> List[Topx]:
@@ -441,7 +440,7 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top:int) 
                         fully_diluted_market_cap            = moeda_divisa['fullyDilluttedMarketCap'],
                         fully_diluted_valuation             = None,
                         total_volume                        = None,
-                        volume_24h                          = moeda_divisa['volume24h'],
+                        volume_24h                          = __mais_menos(moeda_divisa['volume24h']),
                         max_24h                             = None,
                         min_24h                             = None,
                         price_change_24h                    = None,
@@ -455,15 +454,15 @@ def get_topx_CMC(cur: Cursor, topx: int, divisas_ref: List[Divisa], id_top:int) 
                         atl                                 = None,
                         atl_change_pctx                     = None,
                         data_atl                            = None,
-                        price_change_pctx_1h_divisa_ref     = moeda_divisa['percentChange1h'],
-                        price_change_pctx_24h_divisa_ref    = moeda_divisa['percentChange24h'],
-                        price_change_pctx_7d_divisa_ref     = moeda_divisa['percentChange7d'],
+                        price_change_pctx_1h_divisa_ref     = __mais_menos(moeda_divisa['percentChange1h']),
+                        price_change_pctx_24h_divisa_ref    = __mais_menos(moeda_divisa['percentChange24h']),
+                        price_change_pctx_7d_divisa_ref     = __mais_menos(moeda_divisa['percentChange7d']),
                         price_change_pctx_14d_divisa_ref    = None,
-                        price_change_pctx_30d_divisa_ref    = moeda_divisa['percentChange30d'],
-                        price_change_pctx_60d_divisa_ref    = moeda_divisa['percentChange60d'],
-                        price_change_pctx_90d_divisa_ref    = moeda_divisa['percentChange90d'],
+                        price_change_pctx_30d_divisa_ref    = __mais_menos(moeda_divisa['percentChange30d']),
+                        price_change_pctx_60d_divisa_ref    = __mais_menos(moeda_divisa['percentChange60d']),
+                        price_change_pctx_90d_divisa_ref    = __mais_menos(moeda_divisa['percentChange90d']),
                         price_change_pctx_200d_divisa_ref   = None,
-                        price_change_pctx_365d_divisa_ref   = moeda_divisa['ytdPriceChangePercentage'],
+                        price_change_pctx_365d_divisa_ref   = __mais_menos(moeda_divisa['ytdPriceChangePercentage']),
                         roi                                 = None,
                         turnover                            = turnover,
                         dominancia                          = moeda_divisa['dominance'],
